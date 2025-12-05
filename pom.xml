@@ -36,6 +36,7 @@
     <jenkins.version>2.539</jenkins.version>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <spotless.check.skip>false</spotless.check.skip>
+    <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     <!-- All this plugin does is use/implement Beta API in core, SuppressRestrictedWarnings would be everywhere -->
     <useBeta>true</useBeta>
     <hpi.compatibleSinceVersion>2.0</hpi.compatibleSinceVersion>
