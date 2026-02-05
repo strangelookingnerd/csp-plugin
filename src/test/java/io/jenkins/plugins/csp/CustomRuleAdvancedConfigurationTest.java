@@ -23,33 +23,40 @@ import jenkins.security.csp.impl.CspConfiguration;
 import jenkins.security.csp.impl.DevelopmentHeaderDecider;
 import org.htmlunit.WebResponse;
 import org.htmlunit.html.HtmlPage;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.jvnet.hudson.test.For;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.TestExtension;
+import org.jvnet.hudson.test.junit.jupiter.FlagExtension;
 
 @For(CustomRuleAdvancedConfiguration.class)
 @WithJenkinsConfiguredWithCode
 class CustomRuleAdvancedConfigurationTest {
 
-    private static Field developmentHeaderDeciderDisabledField;
-    private static boolean developmentHeaderDeciderDisabled;
-
-    @BeforeAll
-    static void beforeAll() throws Exception {
-        developmentHeaderDeciderDisabledField = DevelopmentHeaderDecider.class.getDeclaredField("DISABLED");
-        developmentHeaderDeciderDisabledField.setAccessible(true);
-        developmentHeaderDeciderDisabled = (boolean) developmentHeaderDeciderDisabledField.get(null);
-        developmentHeaderDeciderDisabledField.set(null, true);
-    }
-
-    @AfterAll
-    static void afterAll() throws Exception {
-        developmentHeaderDeciderDisabledField.set(null, developmentHeaderDeciderDisabled);
-    }
+    @RegisterExtension
+    @SuppressWarnings("unused")
+    private final FlagExtension<Boolean> flagExtension = new FlagExtension<>(
+            () -> {
+                try {
+                    Field field = DevelopmentHeaderDecider.class.getDeclaredField("DISABLED");
+                    field.setAccessible(true);
+                    return (Boolean) field.get(null);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            },
+            (v) -> {
+                try {
+                    Field field = DevelopmentHeaderDecider.class.getDeclaredField("DISABLED");
+                    field.setAccessible(true);
+                    field.set(null, v);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            },
+            true);
 
     @Test
     void testCoreDefaultRules(JenkinsConfiguredWithCodeRule j) {
